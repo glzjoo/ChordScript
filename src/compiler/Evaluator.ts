@@ -2,6 +2,7 @@ import { CharStreams, CommonTokenStream } from 'antlr4ts';
 import { ChordScriptLexer } from '../generated/ChordScriptLexer';
 import { ChordScriptParser } from '../generated/ChordScriptParser';
 import { ChordScriptASTVisitor } from './ASTVisitor';
+import { TypeChecker } from './TypeChecker';
 
 export function runChordScript(sourceCode: string) {
     try {
@@ -14,7 +15,18 @@ export function runChordScript(sourceCode: string) {
         const parser = new ChordScriptParser(tokenStream);
         const tree = parser.program();
 
-        // 3. Interpreter
+        // 3. Type Checker  (static analysis before execution)
+        const typeChecker = new TypeChecker();
+        const errors = typeChecker.check(tree);
+
+        if (errors.length > 0) {
+            const errorMessages = errors
+                .map(e => `  Line ${e.line}:${e.column} — ${e.message}`)
+                .join('\n');
+            return `Type Error:\n${errorMessages}`;
+        }
+
+        // 4. Interpreter
         const visitor = new ChordScriptASTVisitor();
         visitor.visit(tree);
 
