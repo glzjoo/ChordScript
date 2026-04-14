@@ -63,16 +63,19 @@ CHORDSCRIPT_CS323_FINALPROJECT/
    ```bash
    cd CHORDSCRIPT_CS323_FINALPROJECT
 
-2. Install dependencies: 
+2. Install dependencies:
+    ```bash
     npm install
 
-3. npm install antlr4ts
+3. npm install antlr4ts:
+    ```bash
     npm install antlr4ts
 
 Run Instructions
 
 Development Mode:
-npm run dev
+    ```bash
+    npm run dev
 
 How to Use ChordScript
 1. Write Code in the Editor:
