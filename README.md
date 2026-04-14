@@ -131,16 +131,16 @@ Located in /test/ folder:
 Valid tests should compile and play audio.
 
 Known Limitations  
-Custom methods can be declared but not executed (interpreter only supports .play())  
-Variable shadowing has a type-checker bug (avoid reusing variable names in inner scopes)  
-Sixteenth duration not implemented (use Eighth instead)
+- Custom methods can be declared but not executed (interpreter only supports .play())  
+- Variable shadowing has a type-checker bug (avoid reusing variable names in inner scopes)  
+- Sixteenth duration not implemented (use Eighth instead)
 
 Theory Connections
 
 ChordScript demonstrates these core concepts:  
-Lexical Analysis: Converting text to tokens  
-Parsing: Building Abstract Syntax Trees (AST)  
-Type Checking: Static analysis before execution  
-Scoping: Lexical (block) scope with symbol tables  
-Object-Oriented Programming: Classes, inheritance, polymorphism  
-Domain-Specific Languages (DSL): Specialized syntax for music composition
+- Lexical Analysis: Converting text to tokens  
+- Parsing: Building Abstract Syntax Trees (AST)  
+- Type Checking: Static analysis before execution  
+- Scoping: Lexical (block) scope with symbol tables  
+- Object-Oriented Programming: Classes, inheritance, polymorphism  
+- Domain-Specific Languages (DSL): Specialized syntax for music composition
