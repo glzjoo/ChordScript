@@ -1,0 +1,54 @@
+// ═══════════════════════════════════════════════════════════════
+// Test 04: Inheritance & Overriding
+// Description: Tests the extends keyword to ensure child classes inherit from parent classes.
+// ═══════════════════════════════════════════════════════════════
+
+// Base Instrument class
+class Instrument {
+    let volume: Number = 5;
+    
+    func playBase(n: Note, d: Duration) {
+        // Base method declaration - tests inheritance of method signatures
+    }
+}
+
+// Child class extending Instrument
+class ElectricGuitar extends Instrument {
+    let distortion: Number = 8;
+    
+    // Additional method
+    func shred(n: Note, d: Duration) {
+        // Specialized implementation
+    }
+}
+
+// Another child class
+class BassGuitar extends Instrument {
+    let octave: Number = 2;
+    
+    func slap(n: Note, d: Duration) {
+        // Bass-specific method
+    }
+}
+
+// Instantiate child classes
+let guitar: ElectricGuitar = new ElectricGuitar();
+let bass: BassGuitar = new BassGuitar();
+
+// Use built-in .play() method (interpreter-supported)
+guitar.play(E4, Quarter);
+guitar.play(E5, Eighth);
+
+bass.play(A2, Half);
+bass.play(D3, Eighth);
+
+// Test polymorphism - child instance assignable to parent type
+let myInstrument: Instrument = new ElectricGuitar();
+
+// Loop with inherited class instances
+loop 3 times {
+    guitar.play(C4, Eighth);
+}
+
+// NOTE: Custom methods (playBase, shred, slap) are declared but not called
+// because the interpreter only supports the built-in .play() method

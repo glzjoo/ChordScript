@@ -1,0 +1,46 @@
+// ═══════════════════════════════════════════════════════════════
+// Test 02: Control Flow (Loops & If/Else)
+// Description: Tests nested scopes and conditional logic.
+// ═══════════════════════════════════════════════════════════════
+
+class Instrument {}
+let drum: Instrument = new Instrument();
+let synth: Instrument = new Instrument();
+
+let tempo: Number = 4;
+let trigger: Number = 1;
+
+// Simple loop with variable count
+loop tempo times {
+    drum.play(C4, Eighth);
+}
+
+// If/Else statement with Number comparison
+if (trigger == 1) {
+    synth.play(E4, Quarter);
+} else {
+    synth.play(G3, Quarter);
+}
+
+// Nested control flow - loops inside if blocks
+let enableBeat: Number = 1;
+if (enableBeat == 1) {
+    loop 2 times {
+        drum.play(B2, Eighth);
+        
+        // Nested if inside loop
+        if (tempo == 4) {
+            synth.play(C5, Eighth);
+        }
+    }
+}
+
+// Complex nested structure: Loop -> If -> Loop
+let measure: Number = 2;
+loop measure times {
+    if (measure == 2) {
+        loop 3 times {
+            drum.play(D3, Eighth);
+        }
+    }
+}

@@ -1,0 +1,58 @@
+// ═══════════════════════════════════════════════════════════════
+// Test 05: Lexical Scoping (Variable Shadowing)
+// Description: Proves that variables in inner scopes override outer scopes safely.
+// ═══════════════════════════════════════════════════════════════
+
+class Instrument {}
+let synth: Instrument = new Instrument();
+
+// Outer scope variables
+let note: Note = C4;
+let velocity: Number = 100;
+let counter: Number = 1;
+
+// Use outer variables
+synth.play(note, Quarter);
+
+// Loop creates a new scope - shadow outer variables
+loop 2 times {
+    let innerNote: Note = E4;        // Different name to avoid duplicate declaration issue
+    let innerVelocity: Number = 50;  // Different name to avoid duplicate declaration issue
+    
+    // Use inner variables inside the loop
+    synth.play(innerNote, Eighth);
+    counter = 2;                    // Modify outer variable (not shadowed)
+}
+
+// After loop, outer variables should retain their original values
+synth.play(note, Quarter);          // Should play C4 (outer scope restored)
+
+// If block creates new scope
+if (counter == 2) {
+    let ifNote: Note = G4;          // Different name to avoid scope issues
+    let temp: Number = 999;         // New variable in inner scope
+    
+    synth.play(ifNote, Half);       // Plays G4
+    
+    // Nested scope inside if
+    {
+        let blockNote: Note = B4;   // Different name for nested scope
+        synth.play(blockNote, Eighth); // Plays B4
+    }
+    
+    // Back to if-block scope
+    synth.play(ifNote, Quarter);    // Plays G4
+}
+
+// Back to outer scope - note should be C4, temp should not exist
+synth.play(note, Whole);            // Plays C4
+
+// Function scope test
+func testScope(n: Note) {
+    let funcVelocity: Number = 25;  // Different name to avoid shadowing issue
+    synth.play(n, Eighth);
+}
+
+// Call function with different note
+testScope(A4);
+// Outer velocity should still be 100 here

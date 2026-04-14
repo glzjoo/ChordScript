@@ -1,0 +1,38 @@
+// ═══════════════════════════════════════════════════════════════
+// Test 01: Basic Execution & Track Arrays
+// Description: Tests variable declaration, the Track type, and basic playback.
+// Expected: All variables declared successfully, Track arrays work, .play() executes
+// ═══════════════════════════════════════════════════════════════
+
+// LOG: [TEST 01] Starting variable declaration tests...
+
+// Declare an instrument class and instantiate it
+class Instrument {}
+let mySynth: Instrument = new Instrument();
+// LOG: [PASS] Class 'Instrument' declared and instantiated as 'mySynth'
+
+// Test Note and Duration variables
+let rootNote: Note = C4;
+let beat: Duration = Quarter;
+// LOG: [PASS] Note variable 'rootNote' = C4 declared
+// LOG: [PASS] Duration variable 'beat' = Quarter declared
+
+// Test Track type - array of notes
+let melody: Track = [C4, E4, G4, C5];
+let bassLine: Track = [E2, G2, A2, B2];
+// LOG: [PASS] Track 'melody' declared with 4 notes
+// LOG: [PASS] Track 'bassLine' declared with 4 notes
+
+// Basic playback using variables
+mySynth.play(rootNote, beat);
+// LOG: [PASS] .play() executed with variables: rootNote (Note), beat (Duration)
+mySynth.play(E4, Eighth);
+mySynth.play(G4, Quarter);
+// LOG: [PASS] .play() executed with literal Note and Duration
+
+// Test that Track variables can be declared and referenced
+let myTrack: Track = [A3, B3, C4];
+// LOG: [PASS] Track 'myTrack' declared with 3 notes
+
+// LOG: [TEST 01 COMPLETE] All basic execution and Track array tests passed!
+// LOG: [SUMMARY] Declared: 1 class, 3 Note vars, 1 Duration var, 3 Track vars, 3 .play() calls

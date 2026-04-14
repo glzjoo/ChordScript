@@ -1,0 +1,37 @@
+// ═══════════════════════════════════════════════════════════════
+// Test 03: Class Instantiation & Custom Methods
+// Description: Tests defining a class with a custom function.
+// ═══════════════════════════════════════════════════════════════
+
+// Define a class with member variables and custom methods
+class SynthBass {
+    let volume: Number = 10;
+    let tone: Note = E2;
+    
+    func playNote(n: Note, d: Duration) {
+        // Method body - tests that method declarations work with parameters
+    }
+    
+    func setVolume(v: Number) {
+        // Custom method to update volume
+    }
+}
+
+// Instantiate the class
+let myBass: SynthBass = new SynthBass();
+
+// Test using built-in .play() method (only interpreter-supported method)
+myBass.play(C3, Quarter);
+myBass.play(E2, Eighth);
+
+// Test multiple instances
+let secondBass: SynthBass = new SynthBass();
+secondBass.play(G2, Quarter);
+
+// Test using class in a loop
+loop 2 times {
+    myBass.play(C3, Eighth);
+}
+
+// NOTE: Custom methods (playNote, setVolume) are declared but not called
+// because the interpreter only supports the built-in .play() method
