@@ -103,7 +103,7 @@ Language Quick Reference
 | Loop        | `loop N times { ... }`           | `loop 4 times { ... }`             |
 | If/Else     | `if (cond) { ... } else { ... }` | `if (x == 1) { ... }`              |
 
-Built-in Types
+Built-in Types  
 Note: Musical pitch (C4, F#3, Bb2)  
 Duration: Note length (Whole, Half, Quarter, Eighth)  
 Number: Integer values  
@@ -130,17 +130,17 @@ Located in /test/ folder:
 
 Valid tests should compile and play audio.
 
-Known Limitations
-Custom methods can be declared but not executed (interpreter only supports .play())
-Variable shadowing has a type-checker bug (avoid reusing variable names in inner scopes)
+Known Limitations  
+Custom methods can be declared but not executed (interpreter only supports .play())  
+Variable shadowing has a type-checker bug (avoid reusing variable names in inner scopes)  
 Sixteenth duration not implemented (use Eighth instead)
 
 Theory Connections
 
-ChordScript demonstrates these core concepts:
-Lexical Analysis: Converting text to tokens
-Parsing: Building Abstract Syntax Trees (AST)
-Type Checking: Static analysis before execution
-Scoping: Lexical (block) scope with symbol tables
-Object-Oriented Programming: Classes, inheritance, polymorphism
+ChordScript demonstrates these core concepts:  
+Lexical Analysis: Converting text to tokens  
+Parsing: Building Abstract Syntax Trees (AST)  
+Type Checking: Static analysis before execution  
+Scoping: Lexical (block) scope with symbol tables  
+Object-Oriented Programming: Classes, inheritance, polymorphism  
 Domain-Specific Languages (DSL): Specialized syntax for music composition
