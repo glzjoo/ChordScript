@@ -71,9 +71,7 @@ CHORDSCRIPT_CS323_FINALPROJECT/
     ```bash
     npm install antlr4ts
 
-Run Instructions
-
-Development Mode:
+4. Run Instructions (Development Mode):
     ```bash
     npm run dev
 
