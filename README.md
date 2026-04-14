@@ -37,16 +37,16 @@ ChordScript transforms text-based code into playable audio using a complete comp
 | Runtime                    | Node.js        | 20.x    |
 
 ## Project Structure
-CHORDSCRIPT_CS323_FINALPROJECT/
-├── src/
-│   ├── compiler/          # Core compiler (TypeChecker, Evaluator, SymbolTable)
-│   ├── components/        # React UI (Editor, Terminal, Visualizer)
-│   ├── generated/         # ANTLR-generated parser files
-│   ├── grammar/           # ChordScript.g4 grammar definition
-│   └── constants/         # Example programs
-├── test/                  # Test programs (10 test cases)
-├── docs/                  # Documentation and rationale
-├── slides/                # Presentation slides
+CHORDSCRIPT_CS323_FINALPROJECT/  
+├── src/  
+│   ├── compiler/          # Core compiler (TypeChecker, Evaluator, SymbolTable)  
+│   ├── components/        # React UI (Editor, Terminal, Visualizer)  
+│   ├── generated/         # ANTLR-generated parser files  
+│   ├── grammar/           # ChordScript.g4 grammar definition  
+│   └── constants/         # Example programs  
+├── test/                  # Test programs (10 test cases)  
+├── docs/                  # Documentation and rationale  
+├── slides/                # Presentation slides  
 └── README.md              # This file
 
 
@@ -104,15 +104,15 @@ Language Quick Reference
 | If/Else     | `if (cond) { ... } else { ... }` | `if (x == 1) { ... }`              |
 
 Built-in Types
-Note: Musical pitch (C4, F#3, Bb2)
-Duration: Note length (Whole, Half, Quarter, Eighth)
-Number: Integer values
+Note: Musical pitch (C4, F#3, Bb2)  
+Duration: Note length (Whole, Half, Quarter, Eighth)  
+Number: Integer values  
 Track: Array of notes ([C4, E4, G4])
 
-Built-in Method
+Built-in Method  
 .play(Note, Duration): Plays a note with specified duration
 
-Test Suite
+Test Suite  
 Located in /test/ folder:
 
 | Test | Description                          |   Type    |
