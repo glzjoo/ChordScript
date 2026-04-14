@@ -2,7 +2,7 @@
 
 A domain-specific programming language for creating music through code. ChordScript lets you compose musical patterns using familiar programming concepts like variables, loops, classes, and functions.
 
-## Group Information
+## Team
 
 - **Members:** 
   - Glaiza Salvaloza
