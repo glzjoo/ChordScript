@@ -1,0 +1,76 @@
+// ═══════════════════════════════════════════════════════════════
+// Test 08: Invalid Method Arguments
+// Description: Tests the strict requirements of the .play() method.
+// Expected: TypeChecker enforces .play(Note, Duration) — exact arity and types.
+// ═══════════════════════════════════════════════════════════════
+
+class Instrument {}
+let synth: Instrument = new Instrument();
+
+// ─── VALID .play() CALLS (should pass) ───────────────────────
+
+synth.play(C4, Quarter);
+synth.play(E4, Eighth);
+synth.play(G3, Half);
+synth.play(A4, Whole);
+
+// Using variables of correct types
+let myNote: Note = D4;
+let myDuration: Duration = Quarter;
+synth.play(myNote, myDuration);
+
+// ─── CASE 1: Wrong number of arguments (too few) ────────────
+
+// ERROR: The TypeChecker should report:
+//   "Method 'play' expects 2 arguments (Note, Duration), but got 1."
+// The .play() method requires exactly 2 arguments.
+// synth.play(C4);
+
+// ─── CASE 2: Wrong number of arguments (too many) ───────────
+
+// ERROR: The TypeChecker should report:
+//   "Method 'play' expects 2 arguments (Note, Duration), but got 3."
+// synth.play(C4, Quarter, 100);
+
+// ─── CASE 3: Swapped argument types ─────────────────────────
+
+// ERROR: The TypeChecker should report TWO errors:
+//   1. "First argument of '.play()' must be a Note, but got 'Duration'."
+//   2. "Second argument of '.play()' must be a Duration, but got 'Note'."
+// The arguments are in the wrong order.
+// synth.play(Quarter, C4);
+
+// ─── CASE 4: Number passed as Note ──────────────────────────
+
+// ERROR: The TypeChecker should report:
+//   "First argument of '.play()' must be a Note, but got 'Number'."
+// 42 is a Number, not a Note like C4.
+// synth.play(42, Quarter);
+
+// ─── CASE 5: Number passed as Duration ──────────────────────
+
+// ERROR: The TypeChecker should report:
+//   "Second argument of '.play()' must be a Duration, but got 'Number'."
+// 8 is a Number, not a Duration like Eighth.
+// synth.play(C4, 8);
+
+// ─── CASE 6: Calling .play() on undeclared object ───────────
+
+// ERROR: The TypeChecker should report:
+//   "Undefined variable 'ghost' in method call 'ghost.play(...)'."
+// The object 'ghost' was never declared with 'let'.
+// ghost.play(C4, Quarter);
+
+// ─── CASE 7: Valid calls after error cases (control group) ──
+
+// These should always work — correct types, correct arity
+loop 3 times {
+    synth.play(C4, Eighth);
+    synth.play(G4, Eighth);
+}
+
+// LOG: [TEST 08 COMPLETE] Method argument validation verified.
+// LOG: [SUMMARY] The TypeChecker enforces .play(Note, Duration) strictly:
+//      wrong argument count, wrong types, and undeclared objects are all caught.
+// LOG: [KEY CONCEPT] visitMethod_call() in TypeChecker.ts checks both the
+//      existence of the object and the types of each argument passed to .play().

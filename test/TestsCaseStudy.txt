@@ -140,3 +140,114 @@ Result
 
 Scope separation works
 Shadowing with the same name is currently broken
+
+Test 06: Out of Scope Error
+
+-What We Wanted
+--Variables declared inside loops/if-blocks should not be accessible outside
+
+-The Problem
+--Referencing loopNote outside its loop block caused:
+
+Error: Undefined variable 'loopNote'
+
+-Why It Worked
+--The Symbol Table uses enterScope()/exitScope() to manage a scope stack
+--When a block ends, exitScope() destroys all variables declared inside it
+
+-The Solution
+No fix needed. This is correct behavior — scope isolation works as designed.
+
+-Result
+Inner variables are properly destroyed when their block ends
+
+Test 07: Type Mismatch on Assignment
+
+-What We Wanted
+--The TypeChecker should reject assignments where the types do not match
+
+-The Problem
+--let badNote: Note = 42; was caught:
+
+Error: Type mismatch: cannot assign 'Number' to variable 'badNote' of type 'Note'
+
+-Why It Worked
+--visitVar_decl() compares the declared type against the expression type
+--isAssignable() rejects mismatches but allows child → parent (polymorphism)
+
+-The Solution
+No fix needed. The TypeChecker catches mismatches before execution.
+
+-Result
+Type assignment validation works correctly
+
+Test 08: Invalid Method Arguments
+
+-What We Wanted
+--The .play() method should only accept exactly (Note, Duration)
+
+-The Problem
+--synth.play(Quarter, C4); was caught with two errors:
+
+Error: First argument of '.play()' must be a Note, but got 'Duration'
+Error: Second argument of '.play()' must be a Duration, but got 'Note'
+
+--synth.play(C4); was caught:
+
+Error: Method 'play' expects 2 arguments (Note, Duration), but got 1
+
+-Why It Failed
+--The arguments were either in the wrong order, wrong type, or wrong count
+
+-The Solution
+No fix needed. visitMethod_call() validates argument count and types.
+
+-Result
+Method argument validation works correctly
+
+Test 09: Invalid Loop Condition
+
+-What We Wanted
+--Loops should only accept Numbers as the repeat count
+
+-The Problem
+--loop C4 times { ... } was caught:
+
+Error: Loop count must be of type 'Number', but got 'Note'
+
+--loop Quarter times { ... } was also caught:
+
+Error: Loop count must be of type 'Number', but got 'Duration'
+
+-Why It Failed
+--C4 is a Note and Quarter is a Duration — neither is a Number
+
+-The Solution
+No fix needed. visitLoop_stmt() checks the count expression type.
+
+-Result
+Loop count type enforcement works correctly
+
+Test 10: Missing Type Declaration (Syntax Error)
+
+-What We Wanted
+--The Parser should reject code that violates ChordScript grammar rules
+
+-The Problem
+--let badVar = C4; was caught:
+
+Parser Error: mismatched input '=' expecting ':'
+
+--The grammar requires: let ID : type = expr ;
+--The ': type' annotation is mandatory
+
+-Why It Failed
+--The code was missing the required type annotation
+--The Parser catches this before the TypeChecker ever runs
+
+-The Solution
+No fix needed. The Parser enforces grammar rules from ChordScript.g4.
+
+-Result
+Syntax validation works correctly
+Parser catches violations before type checking or execution

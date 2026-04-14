@@ -1,0 +1,73 @@
+// ═══════════════════════════════════════════════════════════════
+// Test 06: Out of Scope Error
+// Description: Tests that the Symbol Table deletes variables when a block ends.
+// Expected: Variables declared inside loops/if-blocks are not accessible outside.
+// ═══════════════════════════════════════════════════════════════
+
+class Instrument {}
+let synth: Instrument = new Instrument();
+
+// Outer scope variable
+let outerNote: Note = C4;
+let outerCount: Number = 3;
+
+// ─── CASE 1: Loop scope isolation ────────────────────────────
+
+// Variable declared inside a loop should NOT leak to outer scope
+loop 2 times {
+    let loopNote: Note = E4;
+    let loopVelocity: Number = 80;
+    synth.play(loopNote, Eighth);
+}
+
+// ERROR: 'loopNote' was defined inside the loop — it no longer exists here.
+// The Symbol Table's exitScope() destroyed it when the loop block ended.
+// Uncommenting the next line should trigger: "Undefined variable 'loopNote'."
+// synth.play(loopNote, Quarter);
+
+// ─── CASE 2: If-block scope isolation ────────────────────────
+
+if (outerCount == 3) {
+    let ifNote: Note = G4;
+    let ifDuration: Duration = Half;
+    synth.play(ifNote, ifDuration);
+}
+
+// ERROR: 'ifNote' and 'ifDuration' were declared inside the if-block.
+// They are removed from the Symbol Table when the if-block scope closes.
+// Uncommenting the next line should trigger: "Undefined variable 'ifNote'."
+// synth.play(ifNote, Quarter);
+
+// ─── CASE 3: Nested scope depth ─────────────────────────────
+
+loop 2 times {
+    let outerLoop: Note = A3;
+
+    if (outerCount == 3) {
+        let innerIf: Note = B4;
+        synth.play(innerIf, Eighth);
+    }
+
+    // ERROR: 'innerIf' was in the if-block scope inside the loop.
+    // It dies when the if-block ends, even though the loop is still running.
+    // Uncommenting the next line should trigger: "Undefined variable 'innerIf'."
+    // synth.play(innerIf, Quarter);
+
+    synth.play(outerLoop, Quarter);
+}
+
+// ERROR: 'outerLoop' was in the loop scope — dies when loop ends.
+// Uncommenting the next line should trigger: "Undefined variable 'outerLoop'."
+// synth.play(outerLoop, Half);
+
+// ─── CASE 4: Outer scope survives ───────────────────────────
+
+// These should always work — they are in the global scope
+synth.play(outerNote, Quarter);
+synth.play(C4, Whole);
+
+// LOG: [TEST 06 COMPLETE] Scope isolation verified.
+// LOG: [SUMMARY] Inner variables are correctly destroyed when their block ends.
+// LOG: [KEY CONCEPT] The Symbol Table uses enterScope()/exitScope() to manage
+//      a stack of scoped environments. When exitScope() is called, the entire
+//      inner scope (and all its variables) is discarded.

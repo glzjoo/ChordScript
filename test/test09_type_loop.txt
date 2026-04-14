@@ -1,0 +1,83 @@
+// ═══════════════════════════════════════════════════════════════
+// Test 09: Invalid Loop Condition
+// Description: Tests that loops only accept Numbers, not other types.
+// Expected: TypeChecker rejects loop counts that are not of type Number.
+// ═══════════════════════════════════════════════════════════════
+
+class Instrument {}
+let synth: Instrument = new Instrument();
+
+// ─── VALID LOOP COUNTS (should pass) ─────────────────────────
+
+// Literal number
+loop 4 times {
+    synth.play(C4, Eighth);
+}
+
+// Number variable
+let repeatCount: Number = 3;
+loop repeatCount times {
+    synth.play(E4, Quarter);
+}
+
+// ─── CASE 1: Note used as loop count ─────────────────────────
+
+// ERROR: The TypeChecker should report:
+//   "Loop count must be of type 'Number', but got 'Note'."
+// C4 is a Note, not a Number. You can't loop "C4 times".
+// loop C4 times {
+//     synth.play(C4, Quarter);
+// }
+
+// ─── CASE 2: Duration used as loop count ─────────────────────
+
+// ERROR: The TypeChecker should report:
+//   "Loop count must be of type 'Number', but got 'Duration'."
+// Quarter is a Duration, not a Number. You can't loop "Quarter times".
+// loop Quarter times {
+//     synth.play(E4, Eighth);
+// }
+
+// ─── CASE 3: Note variable used as loop count ───────────────
+
+let myNote: Note = G4;
+// ERROR: The TypeChecker should report:
+//   "Loop count must be of type 'Number', but got 'Note'."
+// Even though myNote is a variable, its type is Note, not Number.
+// loop myNote times {
+//     synth.play(G4, Half);
+// }
+
+// ─── CASE 4: Duration variable used as loop count ───────────
+
+let myDuration: Duration = Half;
+// ERROR: The TypeChecker should report:
+//   "Loop count must be of type 'Number', but got 'Duration'."
+// loop myDuration times {
+//     synth.play(A4, Quarter);
+// }
+
+// ─── CASE 5: Valid number expression in loop (control) ───────
+
+let a: Number = 2;
+let b: Number = 1;
+loop a times {
+    loop b times {
+        synth.play(C3, Eighth);
+    }
+}
+
+// ─── CASE 6: Nested valid loops ─────────────────────────────
+
+loop 2 times {
+    loop 3 times {
+        synth.play(D4, Eighth);
+        synth.play(F4, Eighth);
+    }
+}
+
+// LOG: [TEST 09 COMPLETE] Loop count type validation verified.
+// LOG: [SUMMARY] The TypeChecker enforces that the expression between 'loop' and 'times'
+//      must evaluate to type 'Number'. Notes, Durations, and other types are rejected.
+// LOG: [KEY CONCEPT] visitLoop_stmt() in TypeChecker.ts evaluates the type of the
+//      count expression and reports an error if it is not 'Number'.

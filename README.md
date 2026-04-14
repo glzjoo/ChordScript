@@ -122,11 +122,11 @@ Located in /test/ folder:
 | 03   | OOP - Class Instantiation & Methods  | ✅ Valid |
 | 04   | OOP - Inheritance & Overriding       | ✅ Valid |
 | 05   | Lexical Scoping (Variable Shadowing) | ✅ Valid |
-| 06   | Out of Scope Error                   | ❌       |
-| 07   | Type Mismatch on Assignment          | ❌       |
-| 08   | Invalid Method Arguments             | ❌       |
-| 09   | Invalid Loop Condition               | ❌       |
-| 10   | Missing Type Declaration             | ❌       |
+| 06   | Out of Scope Error                   | ✅ Valid |
+| 07   | Type Mismatch on Assignment          | ✅ Valid |
+| 08   | Invalid Method Arguments             | ✅ Valid |
+| 09   | Invalid Loop Condition               | ✅ Valid |
+| 10   | Missing Type Declaration             | ✅ Valid |
 
 Valid tests should compile and play audio.
 

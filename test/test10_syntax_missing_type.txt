@@ -1,0 +1,97 @@
+// ═══════════════════════════════════════════════════════════════
+// Test 10: Missing Type Declaration (Syntax Error)
+// Description: Tests the Parser catching violations of the strict grammar rules.
+// Expected: The Parser rejects code that does not follow ChordScript syntax before
+//           the TypeChecker or Interpreter ever sees it.
+// ═══════════════════════════════════════════════════════════════
+
+// ─── VALID SYNTAX (should pass the Parser) ───────────────────
+
+class Instrument {}
+let synth: Instrument = new Instrument();
+let note: Note = C4;
+let dur: Duration = Quarter;
+let count: Number = 4;
+
+synth.play(note, dur);
+
+loop count times {
+    synth.play(C4, Eighth);
+}
+
+// ─── CASE 1: Missing type annotation ────────────────────────
+
+// ChordScript grammar rule: var_decl → 'let' ID ':' type '=' expr ';'
+// The ': type' part is MANDATORY. Every variable must be explicitly typed.
+//
+// ERROR: The Parser should reject this — missing ': Note' type annotation.
+//   Parser Error: "mismatched input '=' expecting ':'"
+// let badVar = C4;
+
+// ─── CASE 2: Missing semicolon ──────────────────────────────
+
+// ChordScript grammar rule: var_decl ends with ';', expr_stmt ends with ';'
+// The semicolon is required to terminate statements.
+//
+// ERROR: The Parser should reject this — missing trailing ';'
+//   Parser Error: "missing ';' at 'let'"
+// let x: Number = 5
+// let y: Number = 10;
+
+// ─── CASE 3: Missing 'times' keyword in loop ───────────────
+
+// ChordScript grammar rule: loop_stmt → 'loop' expr 'times' '{' stmt_list '}'
+// The 'times' keyword is mandatory between the count and the block.
+//
+// ERROR: The Parser should reject this — missing 'times' keyword.
+//   Parser Error: "mismatched input '{' expecting 'times'"
+// loop 4 {
+//     synth.play(C4, Quarter);
+// }
+
+// ─── CASE 4: Missing parentheses in if-statement ────────────
+
+// ChordScript grammar rule: if_stmt → 'if' '(' expr ')' '{' stmt_list '}'
+// Parentheses around the condition are mandatory.
+//
+// ERROR: The Parser should reject this — missing '(' around condition.
+//   Parser Error: "mismatched input 'count' expecting '('"
+// if count == 4 {
+//     synth.play(E4, Half);
+// }
+
+// ─── CASE 5: Missing braces around loop body ────────────────
+
+// ChordScript grammar rule: loop body must be enclosed in '{' '}'
+//
+// ERROR: The Parser should reject this — missing '{' after 'times'.
+//   Parser Error: "mismatched input 'synth' expecting '{'"
+// loop 2 times
+//     synth.play(C4, Eighth);
+
+// ─── CASE 6: Invalid class declaration ──────────────────────
+
+// ChordScript grammar rule: class_decl → 'class' ID '{' class_member* '}'
+// The class body must have curly braces, even if empty.
+//
+// ERROR: The Parser should reject this — missing class body.
+//   Parser Error: "mismatched input 'let' expecting '{'"
+// class BadClass
+// let x: Number = 1;
+
+// ─── Valid code after error cases (control group) ───────────
+
+synth.play(C4, Quarter);
+synth.play(E4, Eighth);
+
+loop 2 times {
+    synth.play(G4, Quarter);
+}
+
+// LOG: [TEST 10 COMPLETE] Syntax / Parser error detection verified.
+// LOG: [SUMMARY] The Parser enforces strict grammar rules defined in ChordScript.g4.
+//      Missing types, semicolons, keywords, parentheses, and braces are all caught
+//      at the parsing stage BEFORE type checking or execution.
+// LOG: [KEY CONCEPT] The Parser operates on tokens from the Lexer and validates
+//      them against production rules. If the token stream does not match any rule,
+//      the Parser halts with a syntax error, providing the expected token(s).

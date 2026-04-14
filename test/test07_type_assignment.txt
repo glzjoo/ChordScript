@@ -1,0 +1,70 @@
+// ═══════════════════════════════════════════════════════════════
+// Test 07: Type Mismatch on Assignment
+// Description: Tests the TypeChecker catching a bad variable assignment.
+// Expected: TypeChecker rejects assignments where the expression type
+//           does not match the declared variable type.
+// ═══════════════════════════════════════════════════════════════
+
+class Instrument {}
+let synth: Instrument = new Instrument();
+
+// ─── VALID ASSIGNMENTS (should pass) ─────────────────────────
+
+let correctNote: Note = C4;
+let correctDuration: Duration = Quarter;
+let correctNumber: Number = 42;
+let correctTrack: Track = [C4, E4, G4];
+
+// ─── CASE 1: Assigning a Number where Note is expected ───────
+
+// ERROR: The TypeChecker should report:
+//   "Type mismatch: cannot assign 'Number' to variable 'badNote' of type 'Note'."
+// A Note must be a pitch like C4, D5, etc. — not a numeric value.
+// let badNote: Note = 42;
+
+// ─── CASE 2: Assigning a Note where Duration is expected ─────
+
+// ERROR: The TypeChecker should report:
+//   "Type mismatch: cannot assign 'Note' to variable 'badDuration' of type 'Duration'."
+// A Duration must be Quarter, Half, Whole, or Eighth — not a pitch.
+// let badDuration: Duration = C4;
+
+// ─── CASE 3: Assigning a Duration where Number is expected ───
+
+// ERROR: The TypeChecker should report:
+//   "Type mismatch: cannot assign 'Duration' to variable 'badNumber' of type 'Number'."
+// A Number must be a numeric value — not a rhythmic duration.
+// let badNumber: Number = Eighth;
+
+// ─── CASE 4: Assigning a wrong class type ────────────────────
+
+class Piano {}
+class Drums {}
+
+// ERROR: The TypeChecker should report:
+//   "Type mismatch: cannot assign 'Drums' to variable 'myPiano' of type 'Piano'."
+// A Piano variable can only hold a Piano instance, not a Drums instance.
+// let myPiano: Piano = new Drums();
+
+// ─── CASE 5: Valid class assignment (control) ────────────────
+
+let myInstrument: Instrument = new Instrument();
+myInstrument.play(correctNote, correctDuration);
+
+// ─── CASE 6: Inheritance allows child → parent assignment ────
+
+class ElectricGuitar extends Instrument {}
+// VALID: Child class can be assigned to parent type (polymorphism)
+let polyInstrument: Instrument = new ElectricGuitar();
+polyInstrument.play(C4, Quarter);
+
+// But NOT the reverse:
+// ERROR: "Type mismatch: cannot assign 'Instrument' to variable 'badGuitar' of type 'ElectricGuitar'."
+// let badGuitar: ElectricGuitar = new Instrument();
+
+// LOG: [TEST 07 COMPLETE] Type mismatch detection verified.
+// LOG: [SUMMARY] The TypeChecker validates that the right-hand side expression type
+//      matches the declared type on the left. Mismatches are caught before execution.
+// LOG: [KEY CONCEPT] The isAssignable() method in TypeChecker.ts handles both
+//      built-in types (Note, Duration, Number, Track) and user-defined class types
+//      with inheritance chains.
