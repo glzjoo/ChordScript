@@ -29,6 +29,7 @@ function App() {
   const [pipelineStep, setPipelineStep] = useState(null);
   const [pipelineError, setPipelineError] = useState(null);
   const [lineCount, setLineCount]       = useState(0);
+  const [sidebarOpen, setSidebarOpen]   = useState(false);
 
   // ─── Derived / Effects ──────────────────────────────────────
 
@@ -143,13 +144,22 @@ function App() {
           status={status}
           pipelineStep={pipelineStep}
           pipelineError={pipelineError}
+          sidebarOpen={sidebarOpen}
+          onToggleSidebar={() => setSidebarOpen(prev => !prev)}
         />
 
         {/* Content Area */}
         <div className="flex flex-1 overflow-hidden">
 
           {/* Left Sidebar */}
-          <Sidebar onLoadSnippet={handleLoadSnippet} />
+          <Sidebar
+            onLoadSnippet={(snippet) => {
+              handleLoadSnippet(snippet);
+              setSidebarOpen(false);
+            }}
+            isOpen={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+          />
 
           {/* Center: Editor + Terminal */}
           <main className="flex-1 flex flex-col overflow-hidden animate-fade-in-delay-2">

@@ -381,3 +381,90 @@ html, body, #root {
     radial-gradient(ellipse 50% 40% at 85% 80%, rgba(6, 214, 160, 0.05) 0%, transparent 60%),
     radial-gradient(ellipse 40% 30% at 50% 50%, rgba(34, 211, 238, 0.03) 0%, transparent 60%);
 }
+
+/* ===== CUSTOM BREAKPOINT ===== */
+@custom-media --xs (width >= 480px);
+
+/* ===== MOBILE RESPONSIVE ===== */
+
+/* Sidebar drawer — solid background on mobile so content behind doesn't bleed through */
+@media (max-width: 767px) {
+  .sidebar-panel {
+    background: var(--color-bg-secondary) !important;
+    border-right: 1px solid rgba(148, 163, 184, 0.1);
+    box-shadow: 8px 0 32px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Terminal: smaller on mobile */
+  .terminal-wrapper {
+    height: 160px;
+  }
+
+  /* Editor textarea: tighter padding on mobile */
+  .editor-textarea {
+    font-size: 12px;
+    padding: 14px;
+    border-radius: 8px;
+  }
+
+  /* Pipeline steps: smaller on mobile (when visible) */
+  .pipeline-step {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  /* Buttons: more compact on mobile */
+  .btn-primary {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .btn-secondary {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  /* Status badge: slightly smaller */
+  .status-badge {
+    padding: 3px 10px;
+    font-size: 10px;
+  }
+
+  /* Snippet cards: slightly more touch-friendly */
+  .snippet-card {
+    padding: 14px 16px;
+  }
+}
+
+/* Extra small: very compact layout */
+@media (max-width: 479px) {
+  .terminal-wrapper {
+    height: 140px;
+  }
+
+  .editor-textarea {
+    font-size: 11.5px;
+    padding: 10px;
+    line-height: 1.6;
+  }
+
+  .btn-primary {
+    padding: 10px 14px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+}
+
+/* Desktop: restore terminal height */
+@media (min-width: 768px) {
+  .terminal-wrapper {
+    height: 200px;
+  }
+}
+
+/* xs utility — Tailwind v4 custom variant */
+@variant xs {
+  @media (width >= 480px) {
+    @slot;
+  }
+}

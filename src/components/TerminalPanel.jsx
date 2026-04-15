@@ -2,14 +2,6 @@ import { useRef, useEffect } from 'react';
 import { TerminalIcon } from './Icons';
 
 /**
- * TerminalPanel — Output console that displays color-coded compiler messages.
- *
- * Line prefixes and their colors:
- *   ✓  → green (success)
- *   ✗  → rose (error)
- *   ▸  → muted (progress step)
- *   ■  → amber (stopped)
- *
  * @param {{ output: string }} props
  */
 function TerminalPanel({ output }) {
@@ -35,9 +27,9 @@ function TerminalPanel({ output }) {
   };
 
   return (
-    <div className="border-t border-white/[0.06]" style={{ height: '200px', flexShrink: 0 }}>
+    <div className="terminal-wrapper border-t border-white/[0.06]" style={{ flexShrink: 0 }}>
       {/* Terminal Header */}
-      <div className="flex items-center gap-2 px-5 py-2 border-b border-white/[0.06]">
+      <div className="flex items-center gap-2 px-3 sm:px-5 py-2 border-b border-white/[0.06]">
         <TerminalIcon />
         <span className="text-[11px] font-semibold text-[var(--color-text-muted)] tracking-widest uppercase">
           Output
@@ -47,12 +39,12 @@ function TerminalPanel({ output }) {
       {/* Terminal Body */}
       <div
         ref={outputRef}
-        className="terminal-output p-4 overflow-y-auto"
+        className="terminal-output p-3 sm:p-4 overflow-y-auto"
         style={{ height: 'calc(100% - 36px)', border: 'none', borderRadius: 0 }}
         id="terminal-output"
       >
         {output ? (
-          <pre className="whitespace-pre-wrap">
+          <pre className="whitespace-pre-wrap text-[12px] sm:text-[13px]">
             {output.split('\n').map((line, i) => (
               <div key={i} className={getLineColor(line)}>
                 {line}
