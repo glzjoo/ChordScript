@@ -30,6 +30,65 @@ loop 2 times {
 }`,
   },
   {
+    title: "Twinkle Twinkle Little Star",
+    description: "A classic nursery rhyme on synth",
+    code: `class Instrument {}
+let star: Instrument = new Instrument();
+
+// Store durations to keep the code clean
+let q: Duration = Quarter;
+let h: Duration = Half;
+
+// Part 1: Twinkle twinkle little star
+star.play(C4, q);
+star.play(C4, q);
+star.play(G4, q);
+star.play(G4, q);
+star.play(A4, q);
+star.play(A4, q);
+star.play(G4, h);
+
+// How I wonder what you are
+star.play(F4, q);
+star.play(F4, q);
+star.play(E4, q);
+star.play(E4, q);
+star.play(D4, q);
+star.play(D4, q);
+star.play(C4, h);
+
+// Part 2: Up above the world so high, like a diamond in the sky
+// This melody plays twice, so we use the loop control flow!
+loop 2 times {
+    star.play(G4, q);
+    star.play(G4, q);
+    star.play(F4, q);
+    star.play(F4, q);
+    star.play(E4, q);
+    star.play(E4, q);
+    star.play(D4, h);
+}
+
+// Part 3: Twinkle twinkle little star (Return to the main theme)
+star.play(C4, q);
+star.play(C4, q);
+star.play(G4, q);
+star.play(G4, q);
+star.play(A4, q);
+star.play(A4, q);
+star.play(G4, h);
+
+// How I wonder what you are
+star.play(F4, q);
+star.play(F4, q);
+star.play(E4, q);
+star.play(E4, q);
+star.play(D4, q);
+star.play(D4, q);
+star.play(C4, h);
+}`,
+  },
+  {
     title: "You are my sunshine",
     description: "A classic song on synth",
     code: `class Instrument {}
