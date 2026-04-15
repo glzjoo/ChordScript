@@ -140,7 +140,9 @@ loop 2 times {
   lead.play(G3, Quarter);
   lead.play(Bb3, Eighth);
   lead.play(A3, Half);
-}`,
+}`
+  },
+  {
     title: "Happy  birthday",
     description: "A classic birthday song on synth",
     code: `class Instrument {}
