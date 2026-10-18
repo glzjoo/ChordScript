@@ -1,10 +1,25 @@
 import { useRef, useEffect } from 'react';
-import { TerminalIcon } from './Icons';
+import { TerminalIcon, ClearIcon } from './Icons';
+import PipelineDisplay from './PipelineDisplay';
 
 /**
- * @param {{ output: string }} props
+ * Classifies a terminal line by its leading glyph so it can be styled.
+ * Returns the glyph separately so it renders in its own column.
  */
-function TerminalPanel({ output }) {
+const parseLine = (line) => {
+  if (line.startsWith('✓')) return { kind: 'is-success', glyph: '✓', text: line.slice(1).trimStart() };
+  if (line.startsWith('✗')) return { kind: 'is-error',   glyph: '✗', text: line.slice(1).trimStart() };
+  if (line.startsWith('▸')) return { kind: 'is-step',    glyph: '›', text: line.slice(1).trimStart() };
+  if (line.startsWith('■')) return { kind: 'is-warn',    glyph: '■', text: line.slice(1).trimStart() };
+  if (line.startsWith('  ')) return { kind: 'is-meta',   glyph: '',  text: line.trimStart() };
+  return { kind: 'is-plain', glyph: '', text: line };
+};
+
+/**
+ * Bottom output panel with compiler pipeline status.
+ * @param {{ output: string, pipelineStep: string|null, pipelineError: string|null, onClear: () => void }} props
+ */
+function TerminalPanel({ output, pipelineStep, pipelineError, onClear }) {
   const outputRef = useRef(null);
 
   // Auto-scroll to latest output
@@ -14,57 +29,50 @@ function TerminalPanel({ output }) {
     }
   }, [output]);
 
-  /**
-   * Determines the Tailwind color class for a terminal line
-   * based on its leading character.
-   */
-  const getLineColor = (line) => {
-    if (line.startsWith('✓')) return 'text-[var(--color-accent)]';
-    if (line.startsWith('✗')) return 'text-[var(--color-rose)]';
-    if (line.startsWith('▸')) return 'text-[var(--color-text-muted)]';
-    if (line.startsWith('■')) return 'text-[var(--color-amber)]';
-    return 'text-[var(--color-text-secondary)]';
-  };
-
   return (
-    <div className="terminal-wrapper border-t border-white/[0.06]" style={{ flexShrink: 0 }}>
-      {/* Terminal Header */}
-      <div className="flex items-center gap-2 px-3 sm:px-5 py-2 border-b border-white/[0.06]">
-        <TerminalIcon />
-        <span className="text-[11px] font-semibold text-[var(--color-text-muted)] tracking-widest uppercase">
-          Output
-        </span>
+    <section className="panel" aria-label="Output">
+      <div className="panel-header">
+        <div className="panel-tabs" role="tablist">
+          <div className="panel-tab" role="tab" aria-selected="true">
+            <TerminalIcon />
+            Output
+          </div>
+        </div>
+
+        <div className="panel-actions">
+          <PipelineDisplay activeStep={pipelineStep} errorStep={pipelineError} />
+          <button
+            className="icon-btn"
+            onClick={onClear}
+            disabled={!output}
+            aria-label="Clear output"
+            title="Clear output"
+            id="clear-output"
+            style={{ marginLeft: 12 }}
+          >
+            <ClearIcon />
+          </button>
+        </div>
       </div>
 
-      {/* Terminal Body */}
-      <div
-        ref={outputRef}
-        className="terminal-output p-3 sm:p-4 overflow-y-auto"
-        style={{ height: 'calc(100% - 36px)', border: 'none', borderRadius: 0 }}
-        id="terminal-output"
-      >
+      <div ref={outputRef} className="panel-body" id="terminal-output" role="log" aria-live="polite">
         {output ? (
-          <pre className="whitespace-pre-wrap text-[12px] sm:text-[13px]">
-            {output.split('\n').map((line, i) => (
-              <div key={i} className={getLineColor(line)}>
-                {line}
+          output.split('\n').map((line, i) => {
+            const { kind, glyph, text } = parseLine(line);
+            return (
+              <div key={i} className={`log-line ${kind}`}>
+                <span className="log-glyph">{glyph}</span>
+                <span>{text || '\u00a0'}</span>
               </div>
-            ))}
-          </pre>
+            );
+          })
         ) : (
-          <div className="flex items-center gap-2 text-[var(--color-text-muted)] text-[12px]">
-            <span className="opacity-60">$</span>
-            <span>
-              Ready. Press{' '}
-              <kbd className="px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] text-[10px] font-mono mx-0.5">
-                Compile & Play
-              </kbd>{' '}
-              to run your script.
-            </span>
+          <div className="panel-empty">
+            Nothing here yet. Press <span className="kbd kbd-plain">Run</span> to compile and play your script.
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }
 

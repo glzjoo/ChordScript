@@ -4,11 +4,11 @@
  *   Lexer → Parser → Type Check → Execute → Audio Out
  */
 const PIPELINE_STEPS = [
-  { id: 'lexer',     label: 'Lexer',      icon: '⟨⟩' },
-  { id: 'parser',    label: 'Parser',     icon: '🌳' },
-  { id: 'typecheck', label: 'Type Check', icon: '✓'  },
-  { id: 'execute',   label: 'Execute',    icon: '▶'  },
-  { id: 'audio',     label: 'Audio Out',  icon: '♪'  },
+  { id: 'lexer',     label: 'Lex'   },
+  { id: 'parser',    label: 'Parse' },
+  { id: 'typecheck', label: 'Check' },
+  { id: 'execute',   label: 'Run'   },
+  { id: 'audio',     label: 'Audio' },
 ];
 
 export default PIPELINE_STEPS;

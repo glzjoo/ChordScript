@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import * as Tone from 'tone';
 import { runChordScript } from './compiler/Evaluator';
 
@@ -10,16 +10,22 @@ import HeaderBar from './components/HeaderBar';
 import Sidebar from './components/Sidebar';
 import EditorPanel from './components/EditorPanel';
 import TerminalPanel from './components/TerminalPanel';
+import StatusBar from './components/StatusBar';
+
+/** "Pulsing Bass Line" → "pulsing-bass-line.chord" */
+const toFileName = (title) =>
+  `${title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}.chord`;
 
 /**
  * App — Root component for the ChordScript IDE.
  *
  * Manages global state (code, output, compiler status) and
  * orchestrates the layout of all child components:
- *   HeaderBar  →  top bar with branding + pipeline + status
+ *   HeaderBar  →  top bar with branding, file name + run controls
  *   Sidebar    →  left panel with examples + quick reference
- *   EditorPanel →  code editor + toolbar
- *   TerminalPanel → output console
+ *   EditorPanel →  code editor with line numbers + highlighting
+ *   TerminalPanel → output console + pipeline stepper
+ *   StatusBar  →  bottom bar with status + cursor position
  */
 function App() {
   // ─── State ──────────────────────────────────────────────────
@@ -30,8 +36,13 @@ function App() {
   const [pipelineError, setPipelineError] = useState(null);
   const [lineCount, setLineCount]       = useState(0);
   const [sidebarOpen, setSidebarOpen]   = useState(false);
+  const [activeExample, setActiveExample] = useState(0);
+  const [cursor, setCursor]             = useState({ line: 1, col: 1 });
 
   // ─── Derived / Effects ──────────────────────────────────────
+
+  const fileName = activeExample !== null ? toFileName(EXAMPLES[activeExample].title) : 'untitled.chord';
+  const isDirty = activeExample === null || code !== EXAMPLES[activeExample].code;
 
   // Track line count whenever code changes
   useEffect(() => {
@@ -47,28 +58,34 @@ function App() {
 
   /** Run the full compile → execute → audio pipeline */
   const handleRunCode = async () => {
+    if (status === 'compiling') return;
     setOutput('');
     setStatus('compiling');
     setPipelineError(null);
 
+    // Track the current stage locally — the `pipelineStep` state value
+    // would be stale inside this async closure.
+    let currentStep = 'lexer';
+    const enterStep = (step) => { currentStep = step; setPipelineStep(step); };
+
     try {
       // Step 1: Lexer
-      setPipelineStep('lexer');
+      enterStep('lexer');
       appendOutput('▸ Lexical analysis...');
       await new Promise(r => setTimeout(r, 200));
 
       // Step 2: Parser
-      setPipelineStep('parser');
+      enterStep('parser');
       appendOutput('▸ Parsing tokens into AST...');
       await new Promise(r => setTimeout(r, 200));
 
       // Step 3: Type Check
-      setPipelineStep('typecheck');
+      enterStep('typecheck');
       appendOutput('▸ Running type checker...');
       await new Promise(r => setTimeout(r, 150));
 
       // Step 4: Execute
-      setPipelineStep('execute');
+      enterStep('execute');
       appendOutput('▸ Walking AST...');
 
       // Unlock browser audio context
@@ -82,7 +99,7 @@ function App() {
       }
 
       // Step 5: Audio output
-      setPipelineStep('audio');
+      enterStep('audio');
       appendOutput('▸ Scheduling audio events...');
       appendOutput('');
       appendOutput(`✓ ${result}`);
@@ -98,7 +115,7 @@ function App() {
 
     } catch (err) {
       const errorMsg = err.message || 'Unknown compilation error';
-      setPipelineError(pipelineStep || 'lexer');
+      setPipelineError(currentStep);
       appendOutput('');
       appendOutput(`✗ ${errorMsg}`);
       setStatus('error');
@@ -122,62 +139,81 @@ function App() {
   };
 
   /** Load an example snippet into the editor */
-  const handleLoadSnippet = (snippet) => {
+  const handleLoadSnippet = (snippet, index) => {
     setCode(snippet.code);
+    setActiveExample(index);
+    setCursor({ line: 1, col: 1 });
     setOutput('');
     setStatus('ready');
     setPipelineStep(null);
     setPipelineError(null);
   };
 
+  // ─── Keyboard shortcuts ─────────────────────────────────────
+  // Keep a ref to the latest handler so the listener never goes stale.
+  const runRef = useRef(handleRunCode);
+  useEffect(() => { runRef.current = handleRunCode; });
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        runRef.current();
+      }
+      if (e.key === 'Escape') setSidebarOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   // ─── Layout ─────────────────────────────────────────────────
   return (
-    <div className="relative h-dvh w-screen overflow-hidden">
-      {/* Background mesh gradient */}
-      <div className="bg-gradient-mesh" />
+    <div className="app">
+      {/* Top Bar */}
+      <HeaderBar
+        status={status}
+        fileName={fileName}
+        isDirty={isDirty}
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen(prev => !prev)}
+        onRun={handleRunCode}
+        onStop={handleStop}
+      />
 
-      {/* Main Layout */}
-      <div className="relative z-10 flex flex-col h-full">
-
-        {/* Top Bar */}
-        <HeaderBar
-          status={status}
-          pipelineStep={pipelineStep}
-          pipelineError={pipelineError}
-          sidebarOpen={sidebarOpen}
-          onToggleSidebar={() => setSidebarOpen(prev => !prev)}
+      {/* Content Area */}
+      <div className="app-body">
+        {/* Left Sidebar */}
+        <Sidebar
+          activeIndex={isDirty ? null : activeExample}
+          onLoadSnippet={(snippet, index) => {
+            handleLoadSnippet(snippet, index);
+            setSidebarOpen(false);
+          }}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
         />
 
-        {/* Content Area */}
-        <div className="flex flex-1 overflow-hidden">
-
-          {/* Left Sidebar */}
-          <Sidebar
-            onLoadSnippet={(snippet) => {
-              handleLoadSnippet(snippet);
-              setSidebarOpen(false);
-            }}
-            isOpen={sidebarOpen}
-            onClose={() => setSidebarOpen(false)}
+        {/* Center: Editor + Terminal */}
+        <main className="workspace">
+          <EditorPanel
+            code={code}
+            onCodeChange={setCode}
+            cursor={cursor}
+            onCursorChange={setCursor}
           />
 
-          {/* Center: Editor + Terminal */}
-          <main className="flex-1 flex flex-col overflow-hidden animate-fade-in-delay-2">
-            {/* Editor + Toolbar */}
-            <EditorPanel
-              code={code}
-              onCodeChange={setCode}
-              lineCount={lineCount}
-              status={status}
-              onRun={handleRunCode}
-              onStop={handleStop}
-            />
-
-            {/* Terminal Output */}
-            <TerminalPanel output={output} />
-          </main>
-        </div>
+          {/* Terminal Output */}
+          <TerminalPanel
+            output={output}
+            pipelineStep={pipelineStep}
+            pipelineError={pipelineError}
+            onClear={() => setOutput('')}
+          />
+        </main>
       </div>
+
+      {/* Bottom status bar */}
+      <StatusBar status={status} cursor={cursor} lineCount={lineCount} />
     </div>
   );
 }

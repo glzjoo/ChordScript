@@ -1,35 +1,33 @@
 import PIPELINE_STEPS from '../constants/pipeline';
-import { ChevronIcon } from './Icons';
 
 /**
+ * Compact stepper showing which compiler stage is running.
  * @param {{ activeStep: string|null, errorStep: string|null }} props
  */
 function PipelineDisplay({ activeStep, errorStep }) {
-  return (
-    <div className="flex items-center gap-1 flex-wrap">
-      {PIPELINE_STEPS.map((step, i) => {
-        let state = 'pending';
-        const activeIdx = PIPELINE_STEPS.findIndex(s => s.id === activeStep);
-        const errorIdx = PIPELINE_STEPS.findIndex(s => s.id === errorStep);
+  const activeIdx = PIPELINE_STEPS.findIndex(s => s.id === activeStep);
+  const errorIdx = PIPELINE_STEPS.findIndex(s => s.id === errorStep);
 
-        if (errorStep && i <= errorIdx) {
-          state = i === errorIdx ? 'error' : 'completed';
+  return (
+    <ol className="pipeline" aria-label="Compiler pipeline">
+      {PIPELINE_STEPS.map((step, i) => {
+        let state = '';
+        if (errorStep) {
+          if (i < errorIdx) state = 'is-done';
+          else if (i === errorIdx) state = 'is-error';
         } else if (activeStep) {
-          if (i < activeIdx) state = 'completed';
-          else if (i === activeIdx) state = 'active';
+          if (i < activeIdx) state = 'is-done';
+          else if (i === activeIdx) state = 'is-active';
         }
 
         return (
-          <div key={step.id} className="flex items-center gap-1">
-            <div className={`pipeline-step ${state}`}>
-              <span>{step.icon}</span>
-              <span>{step.label}</span>
-            </div>
-            {i < PIPELINE_STEPS.length - 1 && <ChevronIcon />}
-          </div>
+          <li key={step.id} className={`pipeline-step ${state}`} title={step.label}>
+            <span className="pipeline-dot" />
+            <span className="pipeline-label">{step.label}</span>
+          </li>
         );
       })}
-    </div>
+    </ol>
   );
 }
 

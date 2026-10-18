@@ -1,65 +1,116 @@
-import { useRef } from 'react';
-import { PlayIcon, StopIcon, CodeIcon } from './Icons';
+import { useRef, useMemo, useCallback, useLayoutEffect } from 'react';
+import { highlight } from './highlight';
 
 /**
+ * Code editor with line numbers, current-line highlight and syntax colouring.
+ *
+ * Uses the "transparent textarea over highlighted <pre>" technique so we keep
+ * native editing behaviour (undo, IME, selection) without an editor library.
+ *
  * @param {{
  *   code: string,
  *   onCodeChange: (code: string) => void,
- *   lineCount: number,
- *   status: string,
- *   onRun: () => void,
- *   onStop: () => void
+ *   cursor: { line: number, col: number },
+ *   onCursorChange: (cursor: { line: number, col: number }) => void
  * }} props
  */
-function EditorPanel({ code, onCodeChange, lineCount, status, onRun, onStop }) {
-  const editorRef = useRef(null);
+function EditorPanel({ code, onCodeChange, cursor, onCursorChange }) {
+  const inputRef = useRef(null);
+  const highlightRef = useRef(null);
+  const gutterRef = useRef(null);
+
+  const lineCount = useMemo(() => code.split('\n').length, [code]);
+  const highlighted = useMemo(() => highlight(code), [code]);
+
+  /** Keep the highlight layer + gutter aligned with the textarea scroll. */
+  const syncScroll = useCallback(() => {
+    const ta = inputRef.current;
+    if (!ta) return;
+    if (highlightRef.current) {
+      highlightRef.current.scrollTop = ta.scrollTop;
+      highlightRef.current.scrollLeft = ta.scrollLeft;
+    }
+    if (gutterRef.current) {
+      gutterRef.current.style.transform = `translateY(${-ta.scrollTop}px)`;
+    }
+  }, []);
+
+  useLayoutEffect(syncScroll, [code, syncScroll]);
+
+  const reportCursor = () => {
+    const ta = inputRef.current;
+    if (!ta) return;
+    const before = ta.value.slice(0, ta.selectionStart);
+    const line = before.split('\n').length;
+    const col = before.length - before.lastIndexOf('\n');
+    if (line !== cursor.line || col !== cursor.col) onCursorChange({ line, col });
+  };
+
+  const handleKeyDown = (e) => {
+    // Insert two spaces on Tab instead of moving focus
+    if (e.key === 'Tab' && !e.shiftKey && !e.metaKey && !e.ctrlKey) {
+      e.preventDefault();
+      const ta = e.currentTarget;
+      // execCommand keeps the native undo stack intact
+      if (!document.execCommand?.('insertText', false, '  ')) {
+        const { selectionStart: s, selectionEnd: end, value } = ta;
+        onCodeChange(value.slice(0, s) + '  ' + value.slice(end));
+        requestAnimationFrame(() => { ta.selectionStart = ta.selectionEnd = s + 2; });
+      }
+    }
+  };
 
   return (
-    <>
-      {/* ─── Editor Toolbar ─────────────────────────── */}
-      <div className="flex items-center justify-between px-3 sm:px-5 py-2.5 border-b border-white/[0.06]">
-        <div className="flex items-center gap-2 text-[12px] text-[var(--color-text-muted)]">
-          <CodeIcon />
-          <span className="font-medium">editor.chord</span>
-          <span className="text-[var(--color-text-muted)] opacity-50 ml-2 hidden xs:inline">
-            {lineCount} lines
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {status === 'playing' && (
-            <button onClick={onStop} className="btn-secondary" id="stop-btn">
-              <StopIcon />
-              <span className="hidden sm:inline">Stop</span>
-            </button>
-          )}
-          <button
-            onClick={onRun}
-            disabled={status === 'compiling'}
-            className="btn-primary"
-            id="compile-btn"
-          >
-            <PlayIcon />
-            <span className="hidden sm:inline">
-              {status === 'compiling' ? 'Compiling...' : 'Compile & Play'}
-            </span>
-          </button>
+    <div className="editor">
+      {/* Line numbers */}
+      <div className="editor-gutter" aria-hidden="true">
+        <div ref={gutterRef}>
+          {Array.from({ length: lineCount }, (_, i) => (
+            <div
+              key={i}
+              className={`editor-gutter-line ${cursor.line === i + 1 ? 'is-active' : ''}`}
+            >
+              {i + 1}
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* ─── Code Textarea ──────────────────────────── */}
-      <div className="flex-1 p-2 sm:p-4 overflow-hidden" style={{ minHeight: 0 }}>
+      <div className="editor-surface">
+        {/* Highlight layer */}
+        <pre ref={highlightRef} className="editor-highlight" aria-hidden="true">
+          <span
+            className="editor-line-band"
+            style={{ top: `calc(14px + var(--editor-line-h) * ${cursor.line - 1})` }}
+          />
+          <code style={{ position: 'relative' }}>
+            {highlighted}
+            {'\n'}
+          </code>
+        </pre>
+
+        {/* Native input layer */}
         <textarea
-          ref={editorRef}
+          ref={inputRef}
           value={code}
-          onChange={(e) => onCodeChange(e.target.value)}
-          className="editor-textarea"
+          onChange={(e) => { onCodeChange(e.target.value); reportCursor(); }}
+          onScroll={syncScroll}
+          onKeyDown={handleKeyDown}
+          onKeyUp={reportCursor}
+          onClick={reportCursor}
+          onSelect={reportCursor}
+          className="editor-input"
           spellCheck="false"
+          autoCapitalize="off"
+          autoComplete="off"
+          autoCorrect="off"
+          wrap="off"
           placeholder="// Write your ChordScript here..."
+          aria-label="ChordScript source"
           id="code-editor"
         />
       </div>
-    </>
+    </div>
   );
 }
 
